@@ -7,10 +7,18 @@ def initialize_dvc():
     Initializes DVC in the project directory.
     """
     try:
+        # Check if .dvc folder already exists
+        if os.path.exists(".dvc"):
+            print("DVC is already initialized in this directory. Skipping initialization.")
+            return
+
+        # Run DVC init command
         subprocess.run(["dvc", "init"], check=True)
         print("DVC initialized successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error initializing DVC: {e}")
+    except Exception as ex:
+        print(f"Unexpected error during DVC initialization: {ex}")
 
 
 def configure_remote(remote_name: str, remote_path: str):
@@ -21,11 +29,17 @@ def configure_remote(remote_name: str, remote_path: str):
         remote_path (str): The path to the remote storage directory.
     """
     try:
-        subprocess.run(["mkdir", "-p", remote_path], check=True)
+        # Use os.makedirs for cross-platform directory creation
+        os.makedirs(remote_path, exist_ok=True)
+        print(f"Directory '{remote_path}' created or already exists.")
+
+        # Configure the DVC remote
         subprocess.run(["dvc", "remote", "add", "-d", remote_name, remote_path], check=True)
         print(f"DVC remote '{remote_name}' configured at '{remote_path}'.")
     except subprocess.CalledProcessError as e:
         print(f"Error configuring DVC remote: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
 
 
 def track_data(file_path: str):
