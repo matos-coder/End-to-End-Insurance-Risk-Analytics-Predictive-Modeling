@@ -14,7 +14,7 @@ def load_data(filepath):
     """
     try:
         if filepath.endswith('.txt'):
-            data = pd.read_table(filepath) 
+            data = pd.read_table(filepath, sep='|')  # Specify pipe delimiter for .txt files
         else:
             data = pd.read_csv(filepath)
         print(f"Data loaded successfully with {data.shape[0]} rows and {data.shape[1]} columns.")
