@@ -13,7 +13,10 @@ def load_data(filepath):
         pd.DataFrame: Loaded dataset.
     """
     try:
-        data = pd.read_csv(filepath)
+        if filepath.endswith('.txt'):
+            data = pd.read_table(filepath) 
+        else:
+            data = pd.read_csv(filepath)
         print(f"Data loaded successfully with {data.shape[0]} rows and {data.shape[1]} columns.")
         return data
     except Exception as e:
