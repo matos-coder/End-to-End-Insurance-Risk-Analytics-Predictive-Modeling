@@ -4,3 +4,5 @@ matplotlib
 seaborn
 dvc
 subprocess
+scipy
+typing
