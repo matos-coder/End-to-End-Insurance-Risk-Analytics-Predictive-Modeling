@@ -14,13 +14,12 @@ def calculate_claim_metrics(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: DataFrame with added claim frequency, severity, and margin columns.
     """
-    try:
-        df['ClaimFrequency'] = df['NumberOfVehiclesInFleet'] / df['TotalPolicies']
-        df['ClaimSeverity'] = df['TotalClaims'] / np.maximum(df['NumberOfVehiclesInFleet'], 1)
+    if 'TotalClaims' in df.columns and 'NumberOfVehiclesInFleet' in df.columns:
+        df['ClaimFrequency'] = df['TotalClaims'] / df['NumberOfVehiclesInFleet']
+        df['ClaimSeverity'] = df['TotalClaims'] / np.maximum(df['TotalClaims'], 1)
+    if 'TotalPremium' in df.columns and 'TotalClaims' in df.columns:
         df['Margin'] = df['TotalPremium'] - df['TotalClaims']
-        return df
-    except KeyError as e:
-        raise KeyError(f"Missing column in input data: {e}")
+    return df
 
 # --- Data Segmentation ---
 def segment_data(df: pd.DataFrame, feature: str, group_a: str, group_b: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
