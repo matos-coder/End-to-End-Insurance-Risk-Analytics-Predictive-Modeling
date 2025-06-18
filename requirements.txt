@@ -4,3 +4,8 @@ matplotlib
 seaborn
 dvc
 subprocess
+scipy
+typing
+shap
+xgboost
+scikit-learn
