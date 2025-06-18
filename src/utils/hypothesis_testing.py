@@ -15,8 +15,8 @@ def calculate_claim_metrics(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: DataFrame with added claim frequency, severity, and margin columns.
     """
     try:
-        df['ClaimFrequency'] = df['NumberOfClaims'] / df['TotalPolicies']
-        df['ClaimSeverity'] = df['TotalClaims'] / np.maximum(df['NumberOfClaims'], 1)
+        df['ClaimFrequency'] = df['NumberOfVehiclesInFleet'] / df['TotalPolicies']
+        df['ClaimSeverity'] = df['TotalClaims'] / np.maximum(df['NumberOfVehiclesInFleet'], 1)
         df['Margin'] = df['TotalPremium'] - df['TotalClaims']
         return df
     except KeyError as e:
