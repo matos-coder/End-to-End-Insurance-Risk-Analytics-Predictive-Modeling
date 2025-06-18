@@ -8,3 +8,4 @@ scipy
 typing
 shap
 xgboost
+scikit-learn
