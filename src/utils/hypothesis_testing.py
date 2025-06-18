@@ -14,13 +14,12 @@ def calculate_claim_metrics(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: DataFrame with added claim frequency, severity, and margin columns.
     """
-    try:
-        df['ClaimFrequency'] = df['NumberOfClaims'] / df['TotalPolicies']
-        df['ClaimSeverity'] = df['TotalClaims'] / np.maximum(df['NumberOfClaims'], 1)
+    if 'TotalClaims' in df.columns and 'NumberOfVehiclesInFleet' in df.columns:
+        df['ClaimFrequency'] = df['TotalClaims'] / df['NumberOfVehiclesInFleet']
+        df['ClaimSeverity'] = df['TotalClaims'] / np.maximum(df['TotalClaims'], 1)
+    if 'TotalPremium' in df.columns and 'TotalClaims' in df.columns:
         df['Margin'] = df['TotalPremium'] - df['TotalClaims']
-        return df
-    except KeyError as e:
-        raise KeyError(f"Missing column in input data: {e}")
+    return df
 
 # --- Data Segmentation ---
 def segment_data(df: pd.DataFrame, feature: str, group_a: str, group_b: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -36,11 +35,14 @@ def segment_data(df: pd.DataFrame, feature: str, group_a: str, group_b: str) -> 
     Returns:
         Tuple[pd.DataFrame, pd.DataFrame]: DataFrames for Group A and Group B.
     """
+    # Strip whitespace from column names to avoid KeyError due to extra spaces
+    df = df.rename(columns=lambda x: x.strip())
     try:
         group_a_data = df[df[feature] == group_a]
         group_b_data = df[df[feature] == group_b]
         return group_a_data, group_b_data
     except KeyError as e:
+        print(f"Available columns: {df.columns.tolist()}")
         raise KeyError(f"Feature column not found: {e}")
 
 # --- Statistical Testing ---
@@ -71,6 +73,9 @@ def perform_chi_squared_test(df: pd.DataFrame, feature: str, target: str) -> Dic
         Dict[str, float]: Chi-Squared statistic and p-value.
     """
     try:
+        # Bin ClaimFrequency into a categorical variable for Chi-Squared test
+        df['ClaimFrequencyCat'] = (df['ClaimFrequency'] > 0).astype(int)
+        print(df[['PostalCode', 'ClaimFrequency', 'ClaimFrequencyCat']].head())
         contingency_table = pd.crosstab(df[feature], df[target])
         chi2, p, dof, _ = chi2_contingency(contingency_table)
         return {"chi2_statistic": chi2, "p_value": p, "degrees_of_freedom": dof}
